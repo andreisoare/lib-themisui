@@ -15,7 +15,7 @@ body {
 
   overflow: hidden;
 
-  > header {
+  header.main {
     position: absolute;
     top: 0;
     left: 0;
@@ -27,12 +27,14 @@ body {
 
     color: #fff;
     line-height: $header-height;
+    text-align: center;
 
     background-color: $blue;
 
-    h1, h2, h3 {
-      margin: 0;
-      padding: 0;
+    h1 {
+      font-size: 14px;
+      font-weight: 100;
+      line-height: inherit;
     }
   }
 }
@@ -47,37 +49,72 @@ h1, h2, h3 {
   @include gibson-semibold;
 }
 
-.content-view {
+.sidebar {
   position: absolute;
-  top: $header-height;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  width: $list-view-width;
+
+  .github-link {
+    display: block;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    height: $header-height;
+
+    color: $grey;
+    line-height: $header-height;
+    text-align: center;
+    text-decoration: none;
+
+    border-top: solid 1px $grey-70;
+    border-right: solid 1px $grey-70;
+    background-color: $grey-90;
+
+    &:hover {
+      background-color: $grey-80;
+    }
+
+    i {
+      margin-top: -3px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+  }
 
   .component-list-view {
     position: absolute;
-    top: 0px;
-    bottom: 0px;
+    top: $header-height;
+    bottom: $header-height;
     left: 0px;
-    width: $list-view-width;
+    right: 0px;
 
     padding: 0.6rem 0px;
 
     color: $grey-90;
-    background-color: $grey;
+    border-right: solid 1px $grey-70;
+    background-color: $grey-95;
+
+    overflow: auto;
+
+    hr {
+      border: solid 1px $grey-10;
+    }
 
     a {
       box-sizing: border-box;
       cursor: pointer;
-      color: $grey-90;
+      color: $grey;
       text-decoration: none;
 
       &:hover {
-        background-color: $grey-10;
+        background-color: $grey-90;
       }
 
       &.selected {
-        background-color: $grey-20;
+        background-color: $grey-80;
       }
     }
 
@@ -110,16 +147,21 @@ h1, h2, h3 {
       }
     }
   }
+}
 
-  .component-details-view {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: $list-view-width;
-    right: 0;
+.component-details-view {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: $list-view-width;
+  right: 0;
 
-    padding: 2.4rem;
+  padding: 2rem;
+  padding-left: 3rem;
 
-    overflow: auto;
+  overflow: auto;
+
+  h2 {
+    margin-top: 1.2rem;
   }
 }

@@ -5,7 +5,15 @@ angular.module('ThemisComponentsApp')
     # Set blank state
     $scope.name = ""
     $scope.readme =
-        markdown: "**Select a Component**"
+        markdown: """
+          <br><br>
+          **Greetings,**
+
+          Please explore the available components and let us know if you have any questions.
+
+          *Cheerio!*
+          <br><br>
+        """
     $scope.examples = []
 
     $scope.$on 'selectedComponent', (event, component) ->

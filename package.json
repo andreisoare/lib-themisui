@@ -50,9 +50,9 @@
   },
   "scripts": {
     "versionCheck": "npm outdated --depth 0",
-    "docs": "gulp docs",
+    "start": "gulp docs",
     "build": "gulp docs-browserify docs-style docs-examples-style",
-    "karma": "karma start"
+    "test": "karma start"
   },
   "browserify": {
     "transform": "coffeeify"

@@ -21,7 +21,7 @@ angular.module('ThemisComponents')
             </a><a href="" ng-click="showTab('coffee')">CoffeeScript
             </a>
 
-            <input type="submit" value="Run in CodePen">
+            <!--<input type="submit" value="Run in CodePen">-->
           </header>
           <iframe
             ng-show="mode == 'example'"

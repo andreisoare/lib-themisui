@@ -61,7 +61,9 @@ gulp.task 'docs-server', ->
   # Start server on port 3042
   server = null
   startServer = ->
-    server = app.listen 3042, ->
+    port = process.env.PORT ? 3042
+
+    server = app.listen port, ->
       host = server.address().address
       port = server.address().port
 
