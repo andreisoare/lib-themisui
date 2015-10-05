@@ -9,11 +9,16 @@ angular.module('ThemisComponentsApp')
           <br><br>
           **Greetings,**
 
-          Please explore the available components and let us know if you have any questions.
+          We're just loading things up. Everything will be good to go in a minute.
 
           *Cheerio!*
           <br><br>
         """
+
+    $http.get '/readme.md'
+    .then (response) ->
+      $scope.readme = markdown: response.data
+
     $scope.examples = []
 
     $scope.$on 'selectedComponent', (event, component) ->

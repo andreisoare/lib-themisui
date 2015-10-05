@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>ThemisUI</title>
+    <style type="text/css">
+      [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {display: none !important;}
+    </style>
     <link rel="stylesheet" type="text/css" href="/build/app.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <base href="/">
@@ -14,12 +17,11 @@
         <h1>ThemisUI</h1>
       </header>
       <div
+        ng-cloak
         class="component-list-view {{ viewType }}"
         ng-controller="ComponentListController"
-        ng-cloak
         >
         <a
-          ng-cloak
           ng-repeat="component in components"
           ng-class="{selected:selectedComponent == component}"
           ng-href="{{component}}"
@@ -30,9 +32,10 @@
       </a>
     </div>
 
-    <div class="component-details-view"
-      ng-controller="ComponentDetailsController"
+    <div
       ng-cloak
+      class="component-details-view"
+      ng-controller="ComponentDetailsController"
       >
       <div th-bind-markdown="readme.markdown"></div>
       <div ng-bind-html="readme.html"></div>
@@ -47,13 +50,17 @@
     <script src="/build/app.js"></script>
 
     <script>
-      var host = location.hostname + ":" + location.port;
-      var websocket = new WebSocket("ws://" + host + "/channel");
+      (function(){
+        if (location.hostname !== 'themisui-docs.clio.com') {
+          var host = location.hostname + ":" + location.port;
+          var websocket = new WebSocket("ws://" + host + "/channel");
 
-      // Reload page when socket closes
-      websocket.onclose = function() {
-        setTimeout(function() { location.reload() }, 1000);
-      };
+          // Reload page when socket closes
+          websocket.onclose = function() {
+            setTimeout(function() { location.reload() }, 1000);
+          };
+        }
+      })()
     </script>
   </body>
 </html>

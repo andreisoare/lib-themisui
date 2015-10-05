@@ -1,0 +1,16 @@
+<html ng-app="thDemo" style="height: 225px;">
+  <body ng-controller="DemoController as demo">
+    <th-dropdown
+      name="Actions"
+      type="standard"
+      list="demo.links">
+    </th-dropdown>
+    <th-dropdown
+      name="Disabled"
+      list="demo.links"
+      type="create"
+      disabled
+      style="float: right;">
+    </th-dropdown>
+  </body>
+</html>

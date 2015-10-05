@@ -1,12 +1,37 @@
 # ThemisUI
 
+[![Usage Docs](http://dabuttonfactory.com/button.png?t=Usage+Docs&f=Calibri&ts=15&tc=fff&tshs=1&tshc=444&w=110&h=18&c=3&bgt=gradient&bgc=69adf1&ebgc=4891dc&bs=1&bc=236ab4)](http://themisui-docs.clio.com/)
 [![Build Status](https://travis-ci.org/clio/lib-themisui.svg)](https://travis-ci.org/clio/lib-themisui)
 
 ThemisUI is a shareable suite of components and brand assets to be shared across Themis projects. ThemisUI also contains a docs viewer to allow for simple consumption of components.
 
-[Docs Viewer](http://themisui-docs.clio.com/)
 
-## Getting started.
+## Usage
+
+We're running in stealth mode for now meaning we don't yet want to list on NPM. So to install run:
+
+```bash
+npm install git+ssh://git@github.com/clio/lib-themisui.git
+```
+
+You can specify [any other release](https://github.com/clio/lib-themisui/releases) as well.
+
+Next you just need to include ThemisUI in your angular application like so:
+
+```javascript
+angular = require('angular');
+
+angular.module 'YourApp', [
+    require 'lib-ThemisUI'
+];
+```
+
+You can now use any of our components in your application. The APIs for each component explain their usage.
+
+
+## Running Docs
+
+### Getting started.
 
 Whilst inside the `lib-ThemisUI` directory.
 
@@ -17,11 +42,19 @@ Whilst inside the `lib-ThemisUI` directory.
 5. ???
 6. Profit
 
-## Tests
+### Tests
 
 1. Ensure you have npm installed.
 2. Do a `npm install` to get dependencies.
 3. Run `npm test` to start karma.
+
+### Installing `node` / `npm`
+
+### Mac
+
+1. Run `brew update` to ensure that the brew formulae are up to date.
+2. Install node with `brew install node`.
+
 
 ## Contents
 
@@ -30,12 +63,6 @@ Whilst inside the `lib-ThemisUI` directory.
 - `themis_theme`
   - Our base brand / fonts / icons / colours.
 
-## Installing `node` / `npm`
-
-### Mac
-
-1. Run `brew update` to ensure that the brew formulae are up to date.
-2. Install node with `brew install node`.
 
 ## Deploying Docs viewer
 

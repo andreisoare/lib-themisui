@@ -98,6 +98,7 @@ $green-tint: tint($green, 10%);
 $green-shade: shade($green, 10%);
 
 $white: #ffffff;
+$off-white: shade($white, 1%);
 $white-shade: shade($white, 10%);
 
 //We tint our darkest grey to get an equally incremented value scale. grey-90 has a 90% tint, grey-80 80%, etc. You can do things like tint($grey-40, 5%) if you need a smaller increment.
@@ -112,6 +113,9 @@ $grey-70: tint($grey, 70%);
 $grey-80: tint($grey, 80%);
 $grey-90: tint($grey, 90%);
 $grey-95: tint($grey, 95%);
+
+// I've added this because we use it throughout the app but haven't given it a name. It doesn't match any of the above tints.
+$light-grey: #666;
 /*--------------------------------------------------
 * GLOBAL VARIABLES
 *--------------------------------------------------*/

@@ -8,8 +8,25 @@ express = require 'express'
 expressWs = require 'express-ws'
 
 componentsRoot = path.join 'themis_components'
-componentDirectories = -> glob.sync path.join componentsRoot, '!(theme)', '/'
-availableComponentNames = -> ( path.basename(item) for item in componentDirectories() )
+
+metaFor = (componentPath) ->
+  try
+    JSON.parse fs.readFileSync(path.join(componentPath, 'meta.json'), 'utf8')
+  catch
+    {}
+
+componentDirectories = ->
+  directories = {}
+  allDirectories = glob.sync path.join componentsRoot, '!(theme)', '/'
+  for directory in allDirectories
+    directories[directory] = metaFor directory
+
+  return directories
+
+availableComponentNames = ->
+  for item, meta of componentDirectories() when meta.private isnt true
+    path.basename(item)
+
 app = express()
 
 # Restart app when there are open web sockets (triggers browser reload)
@@ -19,6 +36,9 @@ gulp.task 'docs-restart', ->
 
 gulp.task 'docs-server', ->
   gulp.watch ['themis_components/**/*', 'public/**/*'], ['docs-restart']
+
+  app.get '/readme.md', (request, response) ->
+    response.sendFile path.resolve(path.join('README.md'))
 
   app.get '/components.json', (request, response) ->
     componentList = availableComponentNames()

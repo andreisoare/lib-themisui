@@ -1,0 +1,105 @@
+.button-dropdown {
+  display: inline-block;
+  position: relative;
+  border-radius: 0.2rem;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  height: 3.6rem;
+  vertical-align: middle;
+  > a {
+    @extend .antialiased;
+    @include transition(none);
+    border-radius: $border-radius;
+    border: none;
+    height: $button-height;
+    line-height: $button-height;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none!important;
+    cursor: pointer;
+    margin: 0;
+    padding: 0 1.2rem;
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-appearance: none; // iOS Fix
+    background: $blue;
+    color: #fff;
+    &[disabled] {
+      pointer-events: none;
+      cursor: default;
+      opacity: 0.6;
+    }
+  }
+  .create {
+    background: $green;
+  }
+  .standard {
+    color: $grey;
+    background: $grey-70;
+  }
+  .destroy {
+    background-color: $red;
+  }
+}
+.dropdown-menu {
+  position: absolute;
+  z-index: 2147483647;
+  border-radius: .2rem;
+  border: $border;
+  margin: 0;
+  background: #fff;
+  min-width: 16rem;
+  padding-left: 0;
+
+  .dropdown-item {
+    display: block;
+    text-align: left;
+    padding: 0.9rem 1.2rem;
+    box-sizing: border-box;
+    text-decoration: none;
+    i {
+      margin-right: .5rem;
+    }
+
+    &:not(.warning-message) {
+      color: $grey;
+    }
+
+    &:hover {
+      background: $blue;
+      color: #fff;
+    }
+  }
+  &.standard {
+    .dropdown-item:hover {
+      background: $grey-70;
+    }
+  }
+  &.create {
+    .dropdown-item:hover {
+      background: $green;
+    }
+  }
+  &.destroy {
+    .dropdown-item:hover {
+      background: $red;
+    }
+  }
+}
+.dd-overlay {
+  display: block;
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  z-index: 2147483646;
+  background-color: rgba(0,0,0,0);
+}
+hr.th-divider {
+  padding: 0;
+  margin: 0;
+  border: 1px solid $grey-70;
+}
+

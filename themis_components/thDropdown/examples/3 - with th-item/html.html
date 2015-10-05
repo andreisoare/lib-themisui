@@ -1,0 +1,12 @@
+<html ng-app="thDemo" style="height: 200px;">
+  <body>
+    <div ng-controller="DemoController as demo">
+    <th-dropdown name="Flavors" type="create">
+      <th-item url="#" name="Chocolate"></th-item>
+      <th-divider></th-divider>
+      <th-item url="#" name="Vanilla"></th-item>
+      <th-item ng-click="demo.foo()" name="Vanilla"></th-item>
+    </th-dropdown>
+    </div>
+  </body>
+</html>
