@@ -1,5 +1,18 @@
 # Filter — `thFilter`
 
+<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Description](#description)
+- [Example](#example)
+- [Filter object](#filter-object)
+	- [Autocomplete Filter](#autocomplete-filter)
+	- [Select Filter](#select-filter)
+- [onFilterChange(filters)](#onfilterchangefilters)
+- [onSave(filters)](#onsavefilters)
+- [Implementation details](#implementation-details)
+
+<!-- /TOC -->
+
 ## Description
 
 This is a set of components and services that you can use to implement table
