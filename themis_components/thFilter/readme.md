@@ -30,7 +30,7 @@ controller: ->
       label: "Attorney"
       type: "autocomplete"
       autocompleteOptions: {
-        modelClass: Contact
+        ModelClass: Contact
         labelField: "name"
         queryParams: {
           type: "attorney"
@@ -95,23 +95,27 @@ All field objects support the following properties:
 
 ### Autocomplete Filter
 
-Uses our th-autocomplete component to query the server for options as you type.
+Uses our `thAutocomplete` component to query the server for options as you type.
 
-It requires adding 2 more options to th-autocomplete in order to work:
-* ModelClass
-* labelField
+It requires passing 3 more options through the `autocompleteOptions` property.
+These 3 options must be supported by `thAutocomplete` as well.
 
-This saves the developer from having to manually implement `fetchData` for every
+* `ModelClass` (string)
+* `labelField` (string)
+* `queryParams` (optional)
+
+They save the developer from having to manually implement `fetchData` for every
 autocomplete filter. This would actually be impossible for custom fields that
 must be retrieved from the backend: the backend cannot possibly send back
 an implementation of `fetchData` for that specific field.
 
 Behind the scenes, `thFilter` expects that `ModelClass` has a `.query(params)`
-method that it can call with `{query: searchString}` as a parameter. If so,
-it will make the request and parse the response internally.
+method that it can call with `{query: searchString}` as the parameters. If there
+is ever a need to send more than the `query` parameter for the API request, you
+can add additional parameters through the `queryParams` option.
 
-It uses `labelField` to show a specific field for each object from the response
-array.
+`thFilter` will make the request and parse the response internally. It uses
+`labelField` to show a specific field for each object from the response array.
 
 ### Select Filter
 
@@ -146,3 +150,10 @@ currently active filters for future usage.
 
 It receives the same argument that `onFilterChange()` receives, the array of
 active filters.
+
+
+
+## Implementation details
+
+`thFilter` uses the [$injector](https://docs.angularjs.org/api/auto/service/$injector)
+service to inject the `ModelClass` string.
