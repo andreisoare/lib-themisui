@@ -98,13 +98,20 @@ All field objects support the following properties:
 Uses our th-autocomplete component to query the server for options as you type.
 
 It requires adding 2 more options to th-autocomplete in order to work:
-* modelClass
+* ModelClass
 * labelField
 
 This saves the developer from having to manually implement `fetchData` for every
 autocomplete filter. This would actually be impossible for custom fields that
 must be retrieved from the backend: the backend cannot possibly send back
 an implementation of `fetchData` for that specific field.
+
+Behind the scenes, `thFilter` expects that `ModelClass` has a `.query(params)`
+method that it can call with `{query: searchString}` as a parameter. If so,
+it will make the request and parse the response internally.
+
+It uses `labelField` to show a specific field for each object from the response
+array.
 
 ### Select Filter
 
@@ -126,6 +133,7 @@ active and has the following format:
     fieldName: "..." # String
     value: "..." # String
   }
+  # ...
 ]
 ```
 
