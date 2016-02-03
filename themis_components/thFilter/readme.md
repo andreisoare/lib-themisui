@@ -5,8 +5,12 @@
 - [Description](#description)
 - [Example](#example)
 - [Filter object](#filter-object)
-	- [Autocomplete Filter](#autocomplete-filter)
-	- [Select Filter](#select-filter)
+	- [Autocomplete filter](#autocomplete-filter)
+	- [Select filter](#select-filter)
+	- [String filter](#string-filter)
+	- [Date filter](#date-filter)
+	- [Number filter](#number-filter)
+- [activeFilters](#activefilters)
 - [onFilterChange(filters)](#onfilterchangefilters)
 - [onSave(filters)](#onsavefilters)
 - [Implementation details](#implementation-details)
@@ -25,6 +29,7 @@ to the backend.
 
 ```html
 <th-filter filters="controller.filters"
+           activeFilters="controller.activeFilters"
            onFilterChange="controller.onFilterChange"
            saveFilters="controller.saveFilters">
 </th-filter>
@@ -45,6 +50,7 @@ controller: ->
       autocompleteOptions: {
         ModelClass: Contact
         labelField: "name"
+        valueField: "id"
         queryParams: {
           type: "attorney"
         }
@@ -54,16 +60,16 @@ controller: ->
     {
       fieldName: "practiceArea"
       label: "Practice Area"
-      type: "select" # Pre-populated list of options.
+      type: "select"
       data: [
-        "Administration"
-        "Criminal"
+        {label: "Administration", value: 0}
+        {label: "Criminal", value: 1}
       ]
     }
     {
       fieldName: "email"
       label: "Email"
-      type: "search" # Free text input.
+      type: "string"
     }
     {
       fieldName: "coverageDate"
@@ -75,6 +81,16 @@ controller: ->
       label: "Total costs"
       type: "number"
     }
+    # ...
+  ]
+
+  @activeFilters = [
+    {
+      fieldName: "email"
+      operator: "containsAnyOf"
+      value: "john@acme.com john@acme.co.uk"
+    }
+    # ...
   ]
 
   @onFilterChange = (filters) =>
@@ -85,9 +101,9 @@ controller: ->
     @tableDelegate.reload {currentPage: 1}
 
   @saveFilters: (filters) =>
-    # TODO
-    # This is a future feature that allows bookmarking a specific set of
-    # filters to be displayed in the interface.
+    # This allows bookmarking a specific set of filters to be displayed in the
+    # interface. The "filters" paramter provided by this function can be used
+    # later to initialize the "activeFilters" attribute of thFilter.
 
   return
 ```
@@ -101,12 +117,12 @@ All field objects support the following properties:
 * `label` (string)
   * Useful to show to the user what this filter field actually is.
 * `type` (string)
-  * One of: "autocomplete", "select", "search", "date", "number".
+  * One of: "autocomplete", "select", "string", "date", "number".
 * `showOnInit` (boolean, default: false)
   * Indicates whether this field should be displayed to the user by default,
     without having to click the "Add" button and enable it from a list.
 
-### Autocomplete Filter
+### Autocomplete filter
 
 Uses our `thAutocomplete` component to query the server for options as you type.
 
@@ -115,6 +131,7 @@ These 3 options must be supported by `thAutocomplete` as well.
 
 * `ModelClass` (string)
 * `labelField` (string)
+* `valueField` (string)
 * `queryParams` (optional)
 
 They save the developer from having to manually implement `fetchData` for every
@@ -123,17 +140,53 @@ must be retrieved from the backend: the backend cannot possibly send back
 an implementation of `fetchData` for that specific field.
 
 Behind the scenes, `thFilter` expects that `ModelClass` has a `.query(params)`
-method that it can call with `{query: searchString}` as the parameters. If there
-is ever a need to send more than the `query` parameter for the API request, you
-can add additional parameters through the `queryParams` option.
+method that it can call like this:
+`ModelClass.query({query: dataObject[valueField]})`.
+
+If there is ever a need to send more than the `query` parameter for the API
+request, you can add additional parameters through the `queryParams` option.
 
 `thFilter` will make the request and parse the response internally. It uses
 `labelField` to show a specific field for each object from the response array.
 
-### Select Filter
+### Select filter
 
 Requires an additional `data` field (array) which contains all the options that
 the user can select.
+
+The `data` array is actually an array of `{label, value}` objects: the label is
+used in the UI for the user to select and the value is what gets sent in the
+network request to the backend.
+
+### String filter
+
+This filter will support the following operators:
+* is `X`
+* containsAnyOf `X`
+* containsAllOf `X`
+
+### Date filter
+
+* is `X`
+* lessThan `X`
+* greaterThan `X`
+* between `X`, `Y`
+* withinLastDays `X`
+
+### Number filter
+
+* is `X`
+* lessThan `X`
+* greaterThan `X`
+* between `X`, `Y`
+
+
+
+## activeFilters
+
+This is an optional attribute that you can pass to the `thFilter` directive to
+restore previously saved filters. The value that you must pass to it is the
+array of filters that is provided in the `saveFilters()` method.
 
 
 
@@ -147,19 +200,32 @@ active and has the following format:
 ```coffeescript
 [
   {
-    fieldName: "..." # String
-    value: "..." # String
+    fieldName: "email"
+    operator: "containsAnyOf"
+    value: "john@acme.com john@acme.co.uk"
+  }
+  {
+    fieldName: "createdDate"
+    operator: "between"
+    value: [new Date("2015-01-01"), new Date("2015-12-31")]
   }
   # ...
 ]
 ```
 
+For filters that have operators with 2 values, `X` and `Y`, the `value` field
+will be an array with these values.
+
+For `autocomplete` or `select` filter types the operator will be `is`, because
+it must match the exact value selected.
+
 
 
 ## onSave(filters)
 
-In the future the filter component may have a "Save" button that bookmarks the
-currently active filters for future usage.
+The filter component may display a "Save" button that bookmarks the currently
+active filters for future usage. When the user presses this button, `onSave()`
+gets called.
 
 It receives the same argument that `onFilterChange()` receives, the array of
 active filters.
