@@ -44,13 +44,15 @@ controller: (FilterDelegate, FilterObject) ->
 
     onSaveFilters: (filters) =>
       # This allows bookmarking a specific set of filters to be displayed in the
-      # interface. The "filters" paramter provided by this function can be used
-      # later to initialize the "activeFilters" attribute of thFilter.
+      # interface. The "filters" parameter provided by this function can be used
+      # later to restore filters by calling the loadFilters() method on the
+      # delegate object.
   }
 
-  # In reality filters and activeFilter would actually be retrieved with an AJAX
-  # call, in order to support custom fields. I'm harcoding it here to present
-  # all the possible types of fields and how they should be configured.
+  # In reality the array provided to initializeFilters would actually be
+  # retrieved with an AJAX call, in order to support custom fields.
+  # I'm hardcoding it here to present all the possible types of fields and how
+  # they should be configured.
   @filterDelegate.initializeFilters [
     FilterObject {
       fieldIdentifier: "attorney"
