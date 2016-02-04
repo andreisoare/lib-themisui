@@ -1,19 +1,16 @@
 # Filter — `thFilter`
 
-<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+<!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Description](#description)
 - [Example](#example)
-- [Filter object](#filter-object)
+- [FilterObject](#filterobject)
 	- [Autocomplete filter](#autocomplete-filter)
 	- [Select filter](#select-filter)
 	- [String filter](#string-filter)
 	- [Date filter](#date-filter)
 	- [Number filter](#number-filter)
-- [activeFilters](#activefilters)
-- [onFilterChange(filters)](#onfilterchangefilters)
-- [onSave(filters)](#onsavefilters)
-- [Implementation details](#implementation-details)
+- [FilterDelegate](#filterdelegate)
 
 <!-- /TOC -->
 
@@ -28,23 +25,31 @@ to the backend.
 ## Example
 
 ```html
-<th-filter filters="controller.filters"
-           activeFilters="controller.activeFilters"
-           onFilterChange="controller.onFilterChange"
-           saveFilters="controller.saveFilters">
-</th-filter>
+<th-filter delegate="controller.filterDelegate"></th-filter>
 ```
 
 ```coffeescript
-controller: ->
-  # In reality @filters would actually be retrieved with an AJAX call, in order
-  # to support custom fields.
-  #
-  # I'm harcoding it here to get a sense of all the possible types of fields and
-  # how they should be configured.
-  @filters = [
-    {
-      fieldName: "attorney"
+controller: (FilterDelegate, FilterObject) ->
+  @filterDelegate = FilterDelegate {
+    onFilterChange: (filters) =>
+      # Called every time a filter is changed. This is an opportunity to reload
+      # the table, assuming that the table's fetchData uses the @tableFilters
+      # field set on the controller when making requests.
+      @tableFilters = filters
+      @tableDelegate.reload {currentPage: 1}
+
+    saveFilters: (filters) =>
+      # This allows bookmarking a specific set of filters to be displayed in the
+      # interface. The "filters" paramter provided by this function can be used
+      # later to initialize the "activeFilters" attribute of thFilter.
+  }
+
+  # In reality filters and activeFilter would actually be retrieved with an AJAX
+  # call, in order to support custom fields. I'm harcoding it here to present
+  # all the possible types of fields and how they should be configured.
+  @filterDelegate.initializeFilters [
+    FilterObject {
+      fieldIdentifier: "attorney"
       label: "Attorney"
       type: "autocomplete"
       autocompleteOptions: {
@@ -57,8 +62,8 @@ controller: ->
       }
       showOnInit: true
     }
-    {
-      fieldName: "practiceArea"
+    FilterObject {
+      fieldIdentifier: "practiceArea"
       label: "Practice Area"
       type: "select"
       data: [
@@ -66,53 +71,32 @@ controller: ->
         {label: "Criminal", value: 1}
       ]
     }
-    {
-      fieldName: "email"
+    FilterObject {
+      fieldIdentifier: "email"
       label: "Email"
       type: "string"
     }
-    {
-      fieldName: "coverageDate"
+    FilterObject {
+      fieldIdentifier: "coverageDate"
       label: "Coverage Date"
       type: "date"
     }
-    {
-      fieldName: "costs"
+    FilterObject {
+      fieldIdentifier: "costs"
       label: "Total costs"
       type: "number"
     }
     # ...
   ]
 
-  @activeFilters = [
-    {
-      fieldName: "email"
-      operator: "containsAnyOf"
-      value: "john@acme.com john@acme.co.uk"
-    }
-    # ...
-  ]
-
-  @onFilterChange = (filters) =>
-    # Called every time a filter is changed. This is an opportunity to reload
-    # the table, assuming that the table's fetchData uses the @tableFilters
-    # field set on the controller when making requests.
-    @tableFilters = filters
-    @tableDelegate.reload {currentPage: 1}
-
-  @saveFilters: (filters) =>
-    # This allows bookmarking a specific set of filters to be displayed in the
-    # interface. The "filters" paramter provided by this function can be used
-    # later to initialize the "activeFilters" attribute of thFilter.
-
   return
 ```
 
-## Filter object
+## FilterObject
 
-All field objects support the following properties:
+All filter objects are initialized with the following properties:
 
-* `fieldName` (string)
+* `fieldIdentifier` (string)
   * Useful to pass to th-table to know what field to request from the API.
 * `label` (string)
   * Useful to show to the user what this filter field actually is.
@@ -122,32 +106,106 @@ All field objects support the following properties:
   * Indicates whether this field should be displayed to the user by default,
     without having to click the "Add" button and enable it from a list.
 
+They expose the following public methods and properties:
+
+* `fieldIdentifier` (string)
+
+* `type` (string)
+
+* `getOperator()` (string)
+  * Returns the operator that the user selected for this filter. See below what
+    operators each filter type supports.
+
+* `getValue()` (string|array)
+  * Returns the string value that the user selected or typed for this filter.
+    For operators that work with multiple values (like: `between`), the return
+    value is an array with all the string values.
+
+* `serialize()` (string)
+  * Converts the filter to a string that can be saved on the backend.
+
+* `deserialize(serializedFilter)`
+  * Restores the filter from a serialized string.
+
 ### Autocomplete filter
 
 Uses our `thAutocomplete` component to query the server for options as you type.
 
-It requires passing 3 more options through the `autocompleteOptions` property.
-These 3 options must be supported by `thAutocomplete` as well.
+It requires an additional property to initialize called `autocompleteOptions`,
+which is a dictionary of options:
 
 * `ModelClass` (string)
-* `labelField` (string)
-* `valueField` (string)
-* `queryParams` (optional)
+  * A service that represents the Model class of objects to display in the
+    autocomplete.
 
-They save the developer from having to manually implement `fetchData` for every
-autocomplete filter. This would actually be impossible for custom fields that
-must be retrieved from the backend: the backend cannot possibly send back
+* `labelField` (string)
+  * The field that will be displayed in the autocomplete options for each object
+    retrieved.
+
+* `valueField` (string)
+  * The field that will be used as the filter value for the object that is
+    selected.
+
+* `queryParams` (object, optional)
+  * Optional query params to send to the backend when making a query.
+
+These options the developer from having to manually implement `fetchData` for
+every autocomplete filter. This would actually be impossible for custom fields
+that must be retrieved from the backend: the backend cannot possibly send back
 an implementation of `fetchData` for that specific field.
 
-Behind the scenes, `thFilter` expects that `ModelClass` has a `.query(params)`
-method that it can call like this:
-`ModelClass.query({query: dataObject[valueField]})`.
+Behind the scenes, `thFilter` uses the
+[$injector](https://docs.angularjs.org/api/auto/service/$injector) to inject the
+model service represented by `ModelClass`. It expects that this service has a
+`.query(params)` method that it can call like this:
 
-If there is ever a need to send more than the `query` parameter for the API
-request, you can add additional parameters through the `queryParams` option.
+```coffeescript
+ModelClass.query(Object.assign(queryParams, {query: searchString}))
+```
 
 `thFilter` will make the request and parse the response internally. It uses
 `labelField` to show a specific field for each object from the response array.
+
+The only operator that this filter object uses is `is`, because it represents
+an exact match.
+
+#### Pro-tip
+
+Usually these filters and their options will be served by the backend. We don't
+want to couple the backend with the frontend and force it to know how the client
+names its Model classes.
+
+To avoid this issue, you can do some post-processing to the filter objects after
+they are fetched from the backend. For example, the backend would only send:
+
+```coffeescript
+{
+  fieldIdentifier: "attorney"
+  label: "Attorney"
+  type: "mattersAutocomplete"
+  showOnInit: true
+}
+```
+
+And the client would recognize `mattersAutocomplete` and translate the options
+into:
+
+```coffeescript
+{
+  fieldIdentifier: "attorney"
+  label: "Attorney"
+  type: "autocomplete"
+  autocompleteOptions: {
+    ModelClass: Contact
+    labelField: "name"
+    valueField: "id"
+    queryParams: {
+      type: "attorney"
+    }
+  }
+  showOnInit: true
+}
+```
 
 ### Select filter
 
@@ -158,14 +216,34 @@ The `data` array is actually an array of `{label, value}` objects: the label is
 used in the UI for the user to select and the value is what gets sent in the
 network request to the backend.
 
+For example:
+
+```coffeescript
+FilterObject {
+  fieldIdentifier: "practiceArea"
+  label: "Practice Area"
+  type: "select"
+  data: [
+    {label: "Administration", value: 0}
+    {label: "Criminal", value: 1}
+  ]
+}
+```
+
+The only operator that this filter object uses is `is`, because it represents
+an exact match.
+
 ### String filter
 
 This filter will support the following operators:
+
 * is `X`
 * containsAnyOf `X`
 * containsAllOf `X`
 
 ### Date filter
+
+This filter will support the following operators:
 
 * is `X`
 * lessThan `X`
@@ -175,6 +253,8 @@ This filter will support the following operators:
 
 ### Number filter
 
+This filter will support the following operators:
+
 * is `X`
 * lessThan `X`
 * greaterThan `X`
@@ -182,57 +262,34 @@ This filter will support the following operators:
 
 
 
-## activeFilters
+## FilterDelegate
 
-This is an optional attribute that you can pass to the `thFilter` directive to
-restore previously saved filters. The value that you must pass to it is the
-array of filters that is provided in the `saveFilters()` method.
-
-
-
-## onFilterChange(filters)
-
-Called every time a filter is updated by the user.
-
-Receives `filters` as an argument, which stores the filters that are currently
-active and has the following format:
+This service instantiates filter delegates to pass to the `thFilter` component.
 
 ```coffeescript
-[
-  {
-    fieldName: "email"
-    operator: "containsAnyOf"
-    value: "john@acme.com john@acme.co.uk"
-  }
-  {
-    fieldName: "createdDate"
-    operator: "between"
-    value: [new Date("2015-01-01"), new Date("2015-12-31")]
-  }
-  # ...
-]
+delegate = FilterDelegate(options)
 ```
 
-For filters that have operators with 2 values, `X` and `Y`, the `value` field
-will be an array with these values.
+It accepts a dictionary of options:
 
-For `autocomplete` or `select` filter types the operator will be `is`, because
-it must match the exact value selected.
+* `onFilterChange(filters)`
+  * Called every time a filter is updated by the user.
+  * Receives `filters` as an argument, which stores the filters that are
+    currently active.
 
+* `saveFilters(filters)`
+  * The filter component may display a "Save" button that bookmarks the
+    currently active filters for future usage. When the user presses this
+    button, `saveFilters()` gets called.
+  * It receives the same argument that `onFilterChange()` receives, the array of
+    active filters.
 
+The delegate instance exposes the following methods:
 
-## onSave(filters)
+* `initializeFilters(filters)`
+  * Called to set all the filter options that the component can display.
+  * The `filters` argument is an array of new instances of FilterObject.
 
-The filter component may display a "Save" button that bookmarks the currently
-active filters for future usage. When the user presses this button, `onSave()`
-gets called.
-
-It receives the same argument that `onFilterChange()` receives, the array of
-active filters.
-
-
-
-## Implementation details
-
-`thFilter` uses the [$injector](https://docs.angularjs.org/api/auto/service/$injector)
-service to inject the `ModelClass` string.
+* `loadFilters(filters)`
+  * Used to load an array of filters with values that have been saved by
+    `saveFilters()`.
