@@ -4,15 +4,17 @@
 
 - [Description](#description)
 - [Example](#example)
+- [FilterDelegate](#filterdelegate)
 - [FilterObject](#filterobject)
 	- [Autocomplete filter](#autocomplete-filter)
 	- [Select filter](#select-filter)
 	- [String filter](#string-filter)
 	- [Date filter](#date-filter)
 	- [Number filter](#number-filter)
-- [FilterDelegate](#filterdelegate)
 
 <!-- /TOC -->
+
+
 
 ## Description
 
@@ -21,6 +23,8 @@ filters in Clio.
 
 It supports custom fields that have to be populated by making a network request
 to the backend.
+
+
 
 ## Example
 
@@ -38,7 +42,7 @@ controller: (FilterDelegate, FilterObject) ->
       @tableFilters = filters
       @tableDelegate.reload {currentPage: 1}
 
-    saveFilters: (filters) =>
+    onSaveFilters: (filters) =>
       # This allows bookmarking a specific set of filters to be displayed in the
       # interface. The "filters" paramter provided by this function can be used
       # later to initialize the "activeFilters" attribute of thFilter.
@@ -91,6 +95,42 @@ controller: (FilterDelegate, FilterObject) ->
 
   return
 ```
+
+
+
+## FilterDelegate
+
+This service instantiates filter delegates to pass to the `thFilter` component.
+
+```coffeescript
+delegate = FilterDelegate(options)
+```
+
+It accepts a dictionary of options:
+
+* `onFilterChange(filters)`
+  * Called every time a filter is updated by the user.
+  * Receives `filters` as an argument, which is an array with the filters that
+    are currently active.
+
+* `onSaveFilters(filters)`
+  * The filter component may display a "Save" button that bookmarks the
+    currently active filters for future usage. When the user presses this
+    button, `onSaveFilters()` gets called.
+  * It receives the same argument that `onFilterChange()` receives, the array of
+    active filters.
+
+The delegate instance exposes the following methods:
+
+* `initializeFilters(filters)`
+  * Called to set all the filter options that the component can display.
+  * The `filters` argument is an array of new instances of FilterObject.
+
+* `loadFilters(filters)`
+  * Used to load an array of filters with values that have been saved by
+    `onSaveFilters()`.
+
+
 
 ## FilterObject
 
@@ -259,37 +299,3 @@ This filter will support the following operators:
 * lessThan `X`
 * greaterThan `X`
 * between `X`, `Y`
-
-
-
-## FilterDelegate
-
-This service instantiates filter delegates to pass to the `thFilter` component.
-
-```coffeescript
-delegate = FilterDelegate(options)
-```
-
-It accepts a dictionary of options:
-
-* `onFilterChange(filters)`
-  * Called every time a filter is updated by the user.
-  * Receives `filters` as an argument, which stores the filters that are
-    currently active.
-
-* `saveFilters(filters)`
-  * The filter component may display a "Save" button that bookmarks the
-    currently active filters for future usage. When the user presses this
-    button, `saveFilters()` gets called.
-  * It receives the same argument that `onFilterChange()` receives, the array of
-    active filters.
-
-The delegate instance exposes the following methods:
-
-* `initializeFilters(filters)`
-  * Called to set all the filter options that the component can display.
-  * The `filters` argument is an array of new instances of FilterObject.
-
-* `loadFilters(filters)`
-  * Used to load an array of filters with values that have been saved by
-    `saveFilters()`.
