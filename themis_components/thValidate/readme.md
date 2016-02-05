@@ -1,37 +1,20 @@
-# Alternative #1
+# Validations
 
-Rely heavily on Angular's implicit form validation.
+## Description
 
-```html
-<form name="myForm" th-validate-submit="controller.submitFunction()" novalidate>
-  <div ng-class="{'has-error': myForm.firstName.$touched && myForm.firstName.$invalid}">
-    <label>First Name</label>
-    <input
-      type="text"
-      name="firstName"
-      ng-model = "controller.person.firstName"
+After doing some research, we concluded that Angular's default form validation
+functionality is the best solution.
 
-      required
-      ng-minlength="2"
-      ng-maxlength="10"
-      ng-pattern="[a-z]+"
+The only problem is that it cannot be used outside forms, for example:
 
-      custom-validator
-      another-custom-validator
-      >
-    <th-validate-message
-      input="myForm.firstName"
-      message-required="You MUST fill this field!"
-      message-minlength="You must type at least 2 characters here."
-      message-custom-validator="Bla bla bla custom"
-      message-another-custom-validator="Bla bla bla another custom"
-      >
-    </th-validate-message>
-  </div>
+* Input fields outside forms.
+* Validating data objects in our JavaScript code.
 
-  <button type="submit">Submit</button>
-</form>
-```
+As long as the above aren't needed, `ngMessages` is the best solution to display
+validation errors to the user.
+
+There is a [great tutorial](https://scotch.io/tutorials/angularjs-form-validation-with-ngmessages)
+from scotch.io that explains how to use `ngMessages`.
 
 Creating custom validators is documented
 [here](https://docs.angularjs.org/guide/forms) under "Custom Validation".
@@ -43,12 +26,12 @@ Note that some input types have additional builtin validators. For example:
 * [input\[number\]](https://docs.angularjs.org/api/ng/input/input%5Bnumber%5D)
   supports `min` and `max` as validators.
 
+If there will ever be a need for validations outside forms, consider the
+following proposal:
 
 
-# Alternative #2
 
-If we want to validations outside templates as well, we can build something more
-generic.
+## Validator Service
 
 ```coffeescript
 controller: (Validator) ->
