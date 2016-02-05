@@ -301,3 +301,14 @@ This filter will support the following operators:
 * lessThan `X`
 * greaterThan `X`
 * between `X`, `Y`
+
+
+
+## Implementation details to consider
+
+There may be a need to refactor the FilterDelegate and take out of it a part
+that can be reused with ad-hoc filters as well.
+
+So if we ever have a checkbox, or a search field that's not part of table
+filters, we will want to have a convenient abstraction that knows how to parse
+those filters.
