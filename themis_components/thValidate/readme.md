@@ -102,17 +102,6 @@ controller: (Validator) ->
 ```
 
 ```html
-  <form th-disabled="!controller.validations.valid()">
-    <input name=foo ng-model="controller.myForm.foo">
-
-    <p ng-show="controller.myFormValidations.foo.valid()">{{ controller.validations.foo.message() }}</p>
-
-    OR
-
-    <th-validation-message field="controller.validations.foo"></th-validation-message>
-    <th-validation-message field="controller.validations.serverMessage"></th-validation-message>
-  </form>
-
   <form name="myForm" th-validate-enabled="controller.personValidations.valid()" novalidate>
     <div ng-class="{'has-error': !controller.personValidations.name.first.valid()}">
       <label>First Name</label>
